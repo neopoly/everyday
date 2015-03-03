@@ -1,0 +1,1 @@
+MyPattern = FooBar.new

@@ -25,8 +25,7 @@ TODO: Write usage instructions here
 ## Examples
 
 ```ruby
-MyPattern = FooBar.new
-
+include_example pattern_01
 ```
 
 ## Contributing
