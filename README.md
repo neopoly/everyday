@@ -1,6 +1,6 @@
 # Everyday
 
-TODO: Write a gem description
+Everyday is a example based repository for solutions to common oss problems ruby developers have to struggle with almost everyday 
 
 ## Installation
 
