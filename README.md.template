@@ -8,8 +8,32 @@ Publish–subscribe is a messaging pattern to decouple the senders (publishers) 
 A publisher is not sending a message directly to a specific subscriber, instead published messages are pushed into a named channel, without knowledge of what or even if any, subscribers are available.
 Subscribers express interest in one or more of these channels, and only receive messages that are of interest, without knowledge of what or even if any, publishers there are.
 
+```bash
+ruby -Ilib:examples examples/publish-subscribe.rb
+```
+
+_examples/publish-subscribe.rb_
+
 ```ruby
-include_example publish_subscribe
+include_example 'publish-subscribe'
+```
+
+_examples/publish-subscribe/channels.rb_
+
+```ruby
+include_example 'publish-subscribe/channels'
+```
+
+_examples/publish-subscribe/email_service.rb_
+
+```ruby
+include_example 'publish-subscribe/email_service'
+```
+
+_examples/publish-subscribe/user_gateway.rb_
+
+```ruby
+include_example 'publish-subscribe/user_gateway'
 ```
 
 ## Installation
