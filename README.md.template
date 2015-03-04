@@ -4,12 +4,6 @@ Everyday is a example based repository for solutions to common oss problems ruby
 
 # Publish-subscribe
 
-## Benefits
-
-It allows greater scalability and a more dynamic network topology.
-
-## Summary
-
 Publish–subscribe is a messaging pattern to decouple the senders (publishers) of a message from the receivers (subscribers) of a message.
 A publisher is not sending a message directly to a specific subscriber, instead published messages are pushed into a named channel, without knowledge of what or even if any, subscribers are available.
 Subscribers express interest in one or more of these channels, and only receive messages that are of interest, without knowledge of what or even if any, publishers there are.
