@@ -2,10 +2,108 @@
 
 Everyday is a example based repository for solutions to common oss problems ruby developers have to struggle with almost everyday 
 
+# Observer
+
+`Observer` defines a tightly coupled one-to-many dependency between objects.
+
+Use it if a change to one object effects one or more other objects.
+
+The `subject` maintains a list of `observers` and notifies them of any state changes, by calling one of their methods.
+
+## Example
+
+Execute the example with:
+
+```bash
+ruby -Ilib:examples examples/observer.rb
+```
+
+### examples/observer.rb
+
+```ruby
+class Observer
+  def initialize(uid)
+    @uid = uid
+    @subject = nil
+  end
+
+  def uid
+    @uid
+  end
+
+  def subject=(subject)
+    @subject = subject
+  end
+
+  def update
+    print "#{uid} observer notified\n"
+  end
+end
+
+class Subject
+  def initialize
+    @observers = []
+  end
+
+  def attach(observer)
+    observer.subject = self
+    observers << observer
+  end
+
+  def detach(observer)
+    observers.delete_if {|o| o.uid == observer.uid }
+  end
+
+  def do_something_that_is_interesting_for_the_observers
+    notify
+  end
+
+  private
+
+  def observers
+    @observers
+  end
+
+  def notify
+    observers.each do |observer|
+      observer.update
+    end
+  end
+end
+
+s = Subject.new
+o1 = Observer.new('first')
+o2 = Observer.new('second')
+
+s.do_something_that_is_interesting_for_the_observers # => nil
+
+s.attach(o1)
+
+s.do_something_that_is_interesting_for_the_observers # => first observer notified
+
+s.attach(o2)
+
+s.do_something_that_is_interesting_for_the_observers # => first observer notified 
+                                                     # => second observer notified
+
+s.detach(o1)
+
+s.do_something_that_is_interesting_for_the_observers # => second observer notified
+
+s.detach(o2)
+
+s.do_something_that_is_interesting_for_the_observers # => nil
+
+```
+
 # Publish-subscribe
 
-Publish–subscribe is a messaging pattern to decouple the senders (publishers) of a message from the receivers (subscribers) of a message.
-A publisher is not sending a message directly to a specific subscriber, instead published messages are pushed into a named channel, without knowledge of what or even if any, subscribers are available.
+`Publish-subscribe` defines a loosely coupled many-to-many dependency between objects.
+
+It is a messaging pattern to decouple the senders (publishers) of a message from the receivers (subscribers) of a message.
+
+A publisher is not sending a message directly to a specific subscriber, like the in observer pattern, instead published messages are pushed into a named channel, without knowledge of what or even if any, subscribers are available.
+
 Subscribers express interest in one or more of these channels, and only receive messages that are of interest, without knowledge of what or even if any, publishers there are.
 
 ## Gems
