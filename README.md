@@ -21,25 +21,37 @@ ruby -Ilib:examples examples/observer.rb
 ### examples/observer.rb
 
 ```ruby
-class Observer
-  def initialize(uid)
-    @uid = uid
-    @subject = nil
-  end
+require 'observer/subject'
+require 'observer/observer'
 
-  def uid
-    @uid
-  end
+s = Subject.new
+o1 = Observer.new('first')
+o2 = Observer.new('second')
 
-  def subject=(subject)
-    @subject = subject
-  end
+s.do_something_that_is_interesting_for_the_observers # => nil
 
-  def update
-    print "#{uid} observer notified\n"
-  end
-end
+s.attach(o1)
 
+s.do_something_that_is_interesting_for_the_observers # => first observer notified
+
+s.attach(o2)
+
+s.do_something_that_is_interesting_for_the_observers # => first observer notified 
+                                                     # => second observer notified
+
+s.detach(o1)
+
+s.do_something_that_is_interesting_for_the_observers # => second observer notified
+
+s.detach(o2)
+
+s.do_something_that_is_interesting_for_the_observers # => nil
+
+```
+
+### examples/observer/subject.rb
+
+```ruby
 class Subject
   def initialize
     @observers = []
@@ -71,28 +83,29 @@ class Subject
   end
 end
 
-s = Subject.new
-o1 = Observer.new('first')
-o2 = Observer.new('second')
+```
 
-s.do_something_that_is_interesting_for_the_observers # => nil
+### examples/observer/observer.rb
 
-s.attach(o1)
+```ruby
+class Observer
+  def initialize(uid)
+    @uid = uid
+    @subject = nil
+  end
 
-s.do_something_that_is_interesting_for_the_observers # => first observer notified
+  def uid
+    @uid
+  end
 
-s.attach(o2)
+  def subject=(subject)
+    @subject = subject
+  end
 
-s.do_something_that_is_interesting_for_the_observers # => first observer notified 
-                                                     # => second observer notified
-
-s.detach(o1)
-
-s.do_something_that_is_interesting_for_the_observers # => second observer notified
-
-s.detach(o2)
-
-s.do_something_that_is_interesting_for_the_observers # => nil
+  def update
+    print "#{uid} observer notified\n"
+  end
+end
 
 ```
 

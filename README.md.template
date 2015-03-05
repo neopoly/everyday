@@ -24,6 +24,18 @@ ruby -Ilib:examples examples/observer.rb
 include_example 'observer'
 ```
 
+### examples/observer/subject.rb
+
+```ruby
+include_example 'observer/subject'
+```
+
+### examples/observer/observer.rb
+
+```ruby
+include_example 'observer/observer'
+```
+
 # Publish-subscribe
 
 `Publish-subscribe` defines a loosely coupled many-to-many dependency between objects.
