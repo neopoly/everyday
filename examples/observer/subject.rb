@@ -12,10 +12,6 @@ class Subject
     observers.delete_if {|o| o.uid == observer.uid }
   end
 
-  def do_something_that_is_interesting_for_the_observers
-    notify
-  end
-
   private
 
   def observers
@@ -26,5 +22,18 @@ class Subject
     observers.each do |observer|
       observer.update
     end
+  end
+end
+
+class UserGateway < Subject
+  def create(user_data)
+    add_user_to_backend(user_data)
+    notify
+  end
+
+  private
+
+  def add_user_to_backend(data)
+    # build user and add him to the backend ...
   end
 end

@@ -1,25 +1,25 @@
 require 'observer/subject'
 require 'observer/observer'
 
-s = Subject.new
-o1 = Observer.new('first')
-o2 = Observer.new('second')
+# Subject
+user_gateway = UserGateway.new
 
-s.do_something_that_is_interesting_for_the_observers # => nil
+# Observer
+dashboard_service = DashboardService.new
+report_service = ReportService.new
 
-s.attach(o1)
+# Application
+user_gateway.create({:nickname => 'Bob'}) # => nil
 
-s.do_something_that_is_interesting_for_the_observers # => first observer notified
+user_gateway.attach(dashboard_service)
+user_gateway.create({:nickname => 'Bob'}) # => Update dashboard
 
-s.attach(o2)
+user_gateway.attach(report_service)
+user_gateway.create({:nickname => 'Bob'}) # => Update dashboard
+                               # => Generate user statistics PDF document
 
-s.do_something_that_is_interesting_for_the_observers # => first observer notified 
-                                                     # => second observer notified
+user_gateway.detach(dashboard_service)
+user_gateway.create({:nickname => 'Bob'}) # => Generate user statistics PDF document
 
-s.detach(o1)
-
-s.do_something_that_is_interesting_for_the_observers # => second observer notified
-
-s.detach(o2)
-
-s.do_something_that_is_interesting_for_the_observers # => nil
+user_gateway.detach(report_service)
+user_gateway.create({:nickname => 'Bob'}) # => nil
