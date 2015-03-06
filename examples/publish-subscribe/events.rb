@@ -1,4 +1,4 @@
-class Channels
+class Events
   def initialize
     @subscriptions = Hash.new { |h,k| h[k] = [] }
   end
