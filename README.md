@@ -24,28 +24,28 @@ ruby -Ilib:examples examples/observer.rb
 require 'observer/subject'
 require 'observer/observer'
 
-s = Subject.new
-o1 = Observer.new('first')
-o2 = Observer.new('second')
+# Subject
+user_gateway = UserGateway.new
 
-s.do_something_that_is_interesting_for_the_observers # => nil
+# Observer
+dashboard_service = DashboardService.new
+report_service = ReportService.new
 
-s.attach(o1)
+# Application
+user_gateway.create({:nickname => 'Bob'}) # => nil
 
-s.do_something_that_is_interesting_for_the_observers # => first observer notified
+user_gateway.attach(dashboard_service)
+user_gateway.create({:nickname => 'Bob'}) # => Update dashboard
 
-s.attach(o2)
+user_gateway.attach(report_service)
+user_gateway.create({:nickname => 'Bob'}) # => Update dashboard
+                               # => Generate user statistics PDF document
 
-s.do_something_that_is_interesting_for_the_observers # => first observer notified 
-                                                     # => second observer notified
+user_gateway.detach(dashboard_service)
+user_gateway.create({:nickname => 'Bob'}) # => Generate user statistics PDF document
 
-s.detach(o1)
-
-s.do_something_that_is_interesting_for_the_observers # => second observer notified
-
-s.detach(o2)
-
-s.do_something_that_is_interesting_for_the_observers # => nil
+user_gateway.detach(report_service)
+user_gateway.create({:nickname => 'Bob'}) # => nil
 
 ```
 
@@ -66,10 +66,6 @@ class Subject
     observers.delete_if {|o| o.uid == observer.uid }
   end
 
-  def do_something_that_is_interesting_for_the_observers
-    notify
-  end
-
   private
 
   def observers
@@ -83,27 +79,50 @@ class Subject
   end
 end
 
+class UserGateway < Subject
+  def create(user_data)
+    add_user_to_backend(user_data)
+    notify
+  end
+
+  private
+
+  def add_user_to_backend(data)
+    # build user and add him to the backend ...
+  end
+end
+
 ```
 
 ### examples/observer/observer.rb
 
 ```ruby
 class Observer
-  def initialize(uid)
-    @uid = uid
-    @subject = nil
-  end
+  attr_reader :uid
+  attr_writer :subject
 
+  def update
+    raise "Implement update in subclass"
+  end
+end
+
+class DashboardService < Observer
   def uid
-    @uid
-  end
-
-  def subject=(subject)
-    @subject = subject
+    self.class.to_s
   end
 
   def update
-    print "#{uid} observer notified\n"
+    $stdout.print 'Update dashboard'
+  end
+end
+
+class ReportService < Observer
+  def uid
+    self.class.to_s
+  end
+
+  def update
+    $stdout.print 'Generate user statistics PDF document'
   end
 end
 
@@ -136,18 +155,28 @@ ruby -Ilib:examples examples/publish-subscribe.rb
 ### examples/publish-subscribe.rb
 
 ```ruby
-require 'publish-subscribe/channels'
+require 'publish-subscribe/events'
 require 'publish-subscribe/email_service'
+require 'publish-subscribe/report_service'
 require 'publish-subscribe/user_gateway'
 
-channels = Channels.new
-email_service = EmailService.new
+# Interface to publish or subscribe events
+events = Events.new
 
-channels.subscribe :user_registered do |event|
-  email_service.deliver_welcome_email event.user # => 'Welcome Bob'
+# Publisher
+user_gateway = UserGateway.new(events)
+
+# Subscriber
+email_service = EmailService.new
+report_service = ReportService.new
+
+# Subscriber listen to the user_registered event
+events.subscribe :user_registered do |event|
+  email_service.deliver_welcome_email event.user # => 'Send out welcome email to Bob'
+  report_service.rebuild_user_statistics # => 'Generate user statistics PDF document'
 end
 
-user_gateway = UserGateway.new(channels)
+# Application triggers a user_registered event through the publisher
 user_gateway.create({:nickname => 'Bob'})
 
 ```
@@ -155,24 +184,7 @@ user_gateway.create({:nickname => 'Bob'})
 ### examples/publish-subscribe/channels.rb
 
 ```ruby
-class Channels
-  def initialize
-    @subscriptions = Hash.new { |h,k| h[k] = [] }
-  end
-
-  def publish(name, event)
-    subscriptions[name].each { |handler| handler.call(event) }
-  end
-
-  def subscribe(name, &handler)
-    subscriptions[name] << handler
-  end
-
-  private
-
-  attr_reader :subscriptions
-end
-
+include_example 'publish-subscribe/channels'
 ```
 
 ### examples/publish-subscribe/email_service.rb
@@ -180,7 +192,7 @@ end
 ```ruby
 class EmailService
   def deliver_welcome_email(user)
-    $stdout.print "Welcome #{user.nickname}"
+    $stdout.print "Send out welcome email to #{user.nickname}"
   end
 end
 
